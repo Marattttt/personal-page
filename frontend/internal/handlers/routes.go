@@ -1,7 +1,11 @@
 package handlers
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/Marattttt/portfolio/frontend/static"
+	"github.com/labstack/echo/v4"
+)
 
-func SetupRoutes(r echo.Router) {
-	r.Add("GET", "/", HandleIndex())
+func SetupRoutes(e *echo.Echo) {
+	e.Add("GET", "/", HandleIndex())
+	e.StaticFS("/static", static.Get())
 }
