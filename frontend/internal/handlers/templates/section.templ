@@ -1,0 +1,7 @@
+package templates
+
+templ Section(content func() templ.Component) {
+	<div class="bg-slate-950 p-16 m-auto w-11/12 border-orange-400 border ">
+		@content()
+	</div>
+}

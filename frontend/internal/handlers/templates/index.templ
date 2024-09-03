@@ -5,13 +5,16 @@ templ Index() {
 	<html>
 		<head>
 			<title>Marat Bakasov</title>
-			<link rel="stylesheet" href="/static/tailwind.css"/>
+			<link rel="stylesheet" href="/static/css/tailwind.css"/>
 			<link rel="icon" href="/static/favicon.ico" type="image/x-icon"/>
 		</head>
-		<body>
-			<h1 class="text-xl">
-				Hey there!
-			</h1>
+		<body class="bg-slate-900">
+			<div>
+				<h1 class="text-xl">
+					Hey there!
+				</h1>
+				@Section(Greeting)
+			</div>
 		</body>
 	</html>
 }

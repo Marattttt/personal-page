@@ -8,7 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Index() templ.Component {
+func Greeting() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,15 +26,7 @@ func Index() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>Marat Bakasov</title><link rel=\"stylesheet\" href=\"/static/css/tailwind.css\"><link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\"></head><body class=\"bg-slate-900\"><div><h1 class=\"text-xl\">Hey there!</h1>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = Section(Greeting).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"grid grid-cols-4 place-items-center\"><img class=\"size-44 col-span-1 rounded-full border-orange-400 border-2\" src=\"/static/img/github-profile-pic.png\"><div class=\"p-5 col-start-2 col-end-7 space-y-6 text-amber-100\"><div class=\"m-b-5 w-fit\"><h1 class=\"text-5xl p-b-20 border-b-2 border-amber-100\">Marat Bakasov</h1><h2 class=\"text-amber-100 text-xl\">Backend developer</h2></div><div><p class=\"whitespace-normal\">Hello and welcome to my page :) <br>I am a developer from Bishkek, Kyrgyz Republic <br>This website is currently a <b>work in progress</b>, is built with Go+HTMX+tailwind as I think this is the most comfortable way to achieve everything this project will need in the future as very little, if at all, Js is required for it</p></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
