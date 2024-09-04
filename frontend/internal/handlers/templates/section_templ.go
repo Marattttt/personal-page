@@ -26,7 +26,7 @@ func Section(content func() templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"bg-slate-950 p-16 m-auto w-11/12 border-orange-400 border \">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"\n\t\t\tp-16 mx-auto my-8 w-11/12 \n\t\t\tshadow-xl rounded-3xl border-slate-800 border \n\t\t\tbg-slate-950 text-amber-100 \n\t\t\ttransition-colors duration-200\n\t\t\thover:border-orange-900\n\t\t\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

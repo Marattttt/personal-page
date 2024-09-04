@@ -8,7 +8,7 @@ package templates
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Index() templ.Component {
+func Editor() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,19 +26,31 @@ func Index() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><title>Marat Bakasov</title><link rel=\"stylesheet\" href=\"/static/css/tailwind.css\"><link rel=\"icon\" href=\"/static/favicon.ico\" type=\"image/x-icon\"><script src=\"https://unpkg.com/htmx.org@2.0.2\"></script></head><body class=\"bg-slate-900\"><h1 class=\"text-xl\">Hey there!</h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-post=\"/run\" hx-target=\"#code-output\" hx-swap=\"innerHTML\"><textarea name=\"code\" class=\"\n\t\t\t\tw-full p-2 min-h-[20rem] \n\t\t\t\tbg-transparent border border-amber-100 rounded-md \n\t\t\t\toverflow-scroll resize-none\n\t\t\t\tfocus:border-2 hover:border-2\n\t\t\t\tfocus:ring-0 focus:outline-none\" rows=\"10\"></textarea><div class=\"flex text-xl y-fit mt-1 gap-1\"><div class=\"basis-1/4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Section(Greeting).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = radioLikeBtn("python-radio", "lang", "python", "Python").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = Section(Editor).Render(ctx, templ_7745c5c3_Buffer)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"basis-1/4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
+		templ_7745c5c3_Err = radioLikeBtn("golang-radio", "lang", "golang", "Go").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"basis-2/4\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = Button("submit", "Run!").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div></form><div id=\"code-output\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

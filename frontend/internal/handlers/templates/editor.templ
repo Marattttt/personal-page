@@ -1,0 +1,28 @@
+package templates
+
+templ Editor() {
+	<form hx-post="/run" hx-target="#code-output" hx-swap="innerHTML">
+		<textarea
+			name="code"
+			class="
+				w-full p-2 min-h-[20rem] 
+				bg-transparent border border-amber-100 rounded-md 
+				overflow-scroll resize-none
+				focus:border-2 hover:border-2
+				focus:ring-0 focus:outline-none"
+			rows="10"
+		></textarea>
+		<div class="flex text-xl y-fit mt-1 gap-1">
+			<div class="basis-1/4">
+				@radioLikeBtn("python-radio", "lang", "python", "Python")
+			</div>
+			<div class="basis-1/4">
+				@radioLikeBtn("golang-radio", "lang", "golang", "Go")
+			</div>
+			<div class="basis-2/4">
+				@Button("submit", "Run!")
+			</div>
+		</div>
+	</form>
+	<div id="code-output"></div>
+}

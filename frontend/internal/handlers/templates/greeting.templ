@@ -2,11 +2,20 @@ package templates
 
 templ Greeting() {
 	<div class="grid grid-cols-4 place-items-center">
-		<img class="size-44 col-span-1 rounded-full border-orange-400 border-2" src="/static/img/github-profile-pic.png"/>
+		<a href="https://github.com/Marattttt/" target="blank">
+			<img
+				class="size-44 col-span-1 rounded-full border-2
+			border-amber-100
+			transition-colors duration-200
+			hover:border-orange-400
+		"
+				src="/static/img/github-profile-pic.png"
+			/>
+		</a>
 		<div class="p-5 col-start-2 col-end-7 space-y-6 text-amber-100">
 			<div class="m-b-5 w-fit">
-				<h1 class="text-5xl p-b-20 border-b-2 border-amber-100">Marat Bakasov</h1>
-				<h2 class="text-amber-100 text-xl">Backend developer</h2>
+				<h1 class="text-5xl p-b-20 underline decoration-orange-400">Marat Bakasov</h1>
+				<h2 class="text-xl">Backend developer</h2>
 			</div>
 			<div>
 				<p class="whitespace-normal">

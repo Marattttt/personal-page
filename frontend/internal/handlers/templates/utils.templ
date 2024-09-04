@@ -1,0 +1,46 @@
+package templates
+
+templ radioLikeBtn(id string, name string, value string, text string) {
+	<div class="">
+		<input type="radio" id={ id } name={ name } value={ value } class="hidden peer"/>
+		<label
+			for={ id }
+			class="
+				block
+				p-2
+				cursor-pointer
+				text-center
+				bg-transparent
+				border
+				border-amber-100
+				rounded-md
+				transition-colors
+				duration-100
+				hover:text-orange-400
+				peer-checked:text-orange-400
+				peer-checked:border-orange-400
+			"
+		>{ text } </label>
+	</div>
+}
+
+templ Button(btnType string, content string) {
+	<button
+		type={ btnType }
+		class="
+			w-full
+			y-full
+			p-2
+			text-xl
+			rounded-md
+			border
+			border-amber-100
+			transition-colors
+			duration-100
+			hover:text-orange-400
+			hover:border-orange-400
+		"
+	>
+		{ content }
+	</button>
+}

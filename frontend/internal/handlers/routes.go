@@ -7,5 +7,7 @@ import (
 
 func SetupRoutes(e *echo.Echo) {
 	e.Add("GET", "/", HandleIndex())
+	e.Add("POST", "/run", HandleRun())
+
 	e.StaticFS("/static", static.Get())
 }
