@@ -1,20 +1,18 @@
 syntax = "proto3";
 
-package gorunner;
-
-option go_package = "github.com/Marattttt/personal-page/gorunner";
+option go_package = ".;grpcgen";
 
 // The GoRunner service definition
 service GoRunner {
   // RunCode runs the submitted code and returns the result
-  rpc RunCode (RunCodeRequest) returns (RunCodeResponse) {}
+  rpc RunCode(RunCodeRequest) returns (RunCodeResponse) {}
 }
 
 // The request message containing the user's code
 message RunCodeRequest {
   string code = 1;
   map<string, string> env_vars = 2;
-  uint32 timeout_seconds = 3 [(validate.rules).uint32.lte = 60];
+  uint32 timeout_seconds = 3;
 }
 
 // The response message containing either a success or error result
