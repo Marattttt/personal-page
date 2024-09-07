@@ -23,8 +23,7 @@ type Config struct {
 	//
 	// If not provided, same user is assumed
 	RunAs string `env:"RUN_AS"`
-	// directory to place source files
-	BuildDir string `env:"BUILD_DIR, default=/tmp/gorunner/build"`
+
 	// directory to place executables
 	RunDir string `env:"RUN_DIR, default=/tmp/gorunner/runtime"`
 
