@@ -25,17 +25,17 @@ type SafeEnvProvider interface {
 	// Prepare a root directory for code execution
 	Prepare(ctx context.Context, root string) error
 	// Provide a logged in cmd for code execution and compilation
-	Login(ctx context.Context) (exec.Cmd, error)
+	Login(ctx context.Context) (*exec.Cmd, error)
 }
 
 type Runtime struct {
 	// Lock during execution to prevent process collisions
-	lck  *sync.Locker
+	lck  sync.Locker
 	root string
 	env  SafeEnvProvider
 }
 
-func NewRuntime(lck *sync.Locker, runDir string, provider SafeEnvProvider) Runtime {
+func NewRuntime(lck sync.Locker, runDir string, provider SafeEnvProvider) Runtime {
 	return Runtime{
 		lck:  lck,
 		env:  provider,
