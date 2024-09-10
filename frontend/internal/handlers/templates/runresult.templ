@@ -1,0 +1,19 @@
+package templates
+
+import (
+	"strconv"
+	"time"
+)
+
+templ RunResult(stdout string, stderr string, exitcode int, timeTook time.Duration) {
+	<div>
+		<p>stdout: { stdout } </p>
+		if len(stderr) > 0 {
+			<p class="text-red-100">
+				stderr: { stderr }
+			</p>
+		}
+		<p>Exit code: { strconv.Itoa(exitcode) } </p>
+		<p>Executionj timee: { timeTook.String() } </p>
+	</div>
+}

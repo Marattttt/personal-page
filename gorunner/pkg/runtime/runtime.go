@@ -105,6 +105,7 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 		readWg sync.WaitGroup
 	)
 
+	slog.Info("Started execution", slog.String("cmd", cmd.String()))
 	cmd.Start()
 
 	readWg.Add(1)
@@ -142,13 +143,16 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 	// Finish reading
 	readWg.Wait()
 
-	return &RunResult{
-			Stderr:   finStderr.Bytes(),
-			Stdout:   finStdout.Bytes(),
-			ExitCode: cmd.ProcessState.ExitCode(),
-			TimeTook: time.Now().Sub(startedAt)},
-		nil
+	res := &RunResult{
+		Stderr:   finStderr.Bytes(),
+		Stdout:   finStdout.Bytes(),
+		ExitCode: cmd.ProcessState.ExitCode(),
+		TimeTook: time.Now().Sub(startedAt),
+	}
 
+	slog.Debug("Finished running user code", slog.Any("result", res))
+
+	return res, nil
 }
 
 func getOutPipes(cmd *exec.Cmd) (io.ReadCloser, io.ReadCloser, error) {
@@ -173,6 +177,8 @@ func writeMain(root string, code string) error {
 	defer f.Close()
 
 	f.Write([]byte(code))
+
+	slog.Debug("Wrote main.go", slog.String("content", code))
 
 	return nil
 }
