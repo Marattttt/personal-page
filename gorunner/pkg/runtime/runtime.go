@@ -17,11 +17,11 @@ import (
 
 // Resut of running code
 type RunResult struct {
-	Stdout []byte
-	Stderr []byte
+	Stdout []byte `json:"stdout"`
+	Stderr []byte `json:"stderr"`
 
-	TimeTook time.Duration
-	ExitCode int
+	TimeTook time.Duration `json:"timeTook"`
+	ExitCode int           `json:"exitCode"`
 }
 
 // Provides methods for managing a user-specific environment
