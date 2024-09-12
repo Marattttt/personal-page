@@ -44,10 +44,6 @@ func main() {
 
 	go func() {
 		consume(ctx, conf, conn, sendmsg)
-		consume(ctx, conf, conn, sendmsg)
-		consume(ctx, conf, conn, sendmsg)
-		consume(ctx, conf, conn, sendmsg)
-		consume(ctx, conf, conn, sendmsg)
 		close(sendmsg)
 	}()
 
