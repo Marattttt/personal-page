@@ -30,7 +30,11 @@ type Resp struct {
 func main() {
 	ctx := context.TODO()
 
-	checkFatal(godotenv.Load(), "Loading environment with godotenv")
+	if err := godotenv.Load(); err != nil {
+		slog.Warn("Could not load from godotenv", slog.String("err", err.Error()))
+	} else {
+		slog.Info("Successfully godotenv")
+	}
 
 	conf, err := CreateConfig(ctx)
 	checkFatal(err, "Could not create config")

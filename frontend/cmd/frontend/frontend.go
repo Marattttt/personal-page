@@ -15,7 +15,11 @@ import (
 )
 
 func main() {
-	checkFatal(godotenv.Load(), "Could not load godotenv")
+	if err := godotenv.Load(); err != nil {
+		slog.Warn("Could not load from godotenv", slog.String("err", err.Error()))
+	} else {
+		slog.Info("Successfully godotenv")
+	}
 
 	ctx := context.TODO()
 
