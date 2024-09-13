@@ -2,19 +2,26 @@
 
 My personal website!
 
+**Available at https://maratbakasov.com**
+
 ## What
 
-Ideally, a website where a user can login, submit code for execution and see some stats about visitors
+An SSR frontend made with Go, Templ, HTMX, Tailwind, where users can send code on different supported languages to execute in the backend on different microservices
 
 ## Why
 
-To make a fun website that can collect data over time as this seems like a big enough project to be maintained over time
+To learn about Linux security, containerization and have something to show when asked about projects :)
 
 ## How
-1. Implement a go+templ+htmx frontend
-2. Implement code running for user-submitted Go, Js, Python code
-3. Implement stat collection about visitors and code 
+
+[x] Implement a go+templ+htmx frontend
+[x] Go runner microservice
+[ ] Submisssions database to see what people can do with the website
+[ ] Python runner microservice
+[ ] JavaScript runner microservice
+[ ] Stat collection and analytics
 
 ## When
 
-Someday, hopefully :)
+Preview version [already available!](https://maratbakasov.com)
+Finished version: some day, hopefully
