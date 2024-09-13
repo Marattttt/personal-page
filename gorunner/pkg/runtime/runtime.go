@@ -76,9 +76,6 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer stdout.Close()
-	defer stderr.Close()
-
 	// Prepare a main.go file for running
 	if err := writeMain(r.root, code); err != nil {
 		return nil, fmt.Errorf("writing main.go: %w", err)
@@ -106,7 +103,6 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 	)
 
 	slog.Info("Started execution", slog.String("cmd", cmd.String()))
-	cmd.Start()
 
 	readWg.Add(1)
 	go func() {
@@ -130,6 +126,13 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 		}
 	}()
 
+	if err := cmd.Start(); err != nil {
+		return nil, fmt.Errorf("starting shell: %w", err)
+	}
+
+	// Finish reading
+	readWg.Wait()
+
 	// An error other than exiterror indicates a system error
 	if err := cmd.Wait(); err != nil {
 		exitErr, ok := err.(*exec.ExitError)
@@ -139,9 +142,6 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 			return nil, fmt.Errorf("running cmd: %w", err)
 		}
 	}
-
-	// Finish reading
-	readWg.Wait()
 
 	res := &RunResult{
 		Stderr:   finStderr.Bytes(),

@@ -24,7 +24,8 @@ FROM golang:1.23.1-alpine AS release
 
 WORKDIR /app
 
-COPY --from=build /app/src/.env /app/.env
+RUN apk update && apk add bash
+
 COPY --from=build /app/server /app/server
 
 ENTRYPOINT ["./server"]
