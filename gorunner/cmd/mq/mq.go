@@ -28,7 +28,8 @@ type Resp struct {
 }
 
 func main() {
-	ctx := context.TODO()
+	appctx, appcancel := context.WithCancel(context.TODO())
+	defer appcancel()
 
 	if err := godotenv.Load(); err != nil {
 		slog.Warn("Could not load from godotenv", slog.String("err", err.Error()))
@@ -36,7 +37,7 @@ func main() {
 		slog.Info("Successfully godotenv")
 	}
 
-	conf, err := CreateConfig(ctx)
+	conf, err := CreateConfig(appctx)
 	checkFatal(err, "Could not create config")
 
 	checkFatal(conf.Apply(), "Could not apply config")
@@ -47,16 +48,19 @@ func main() {
 	sendmsg := make(chan Resp)
 
 	go func() {
-		consume(ctx, conf, conn, sendmsg)
+		consume(appctx, conf, conn, sendmsg)
+		// Closing the sendmsg channel signals to finish reading from it and stop the producer
+		// goroutine, which leads to all remaining messages being sent to mq before shutdown
 		close(sendmsg)
 	}()
 
 	go func() {
-		produce(ctx, conf, conn, sendmsg)
+		produce(appctx, conf, conn, sendmsg)
 		slog.Info("Stopped message production")
+		appcancel()
 	}()
 
-	<-ctx.Done()
+	<-appctx.Done()
 	slog.Info("Shutting down application")
 }
 
@@ -79,6 +83,9 @@ func consume(ctx context.Context, conf *Config, conn *amqp091.Connection, send c
 	checkFatal(err, "Creating a consume channel")
 
 	runtimeLock := sync.Mutex{}
+	run, err := createRuntime(*conf, &runtimeLock)
+	checkFatal(err, "Cretaing runtime")
+
 	for msg := range d {
 		var req Req
 		if err := json.Unmarshal(msg.Body, &req); err != nil {
@@ -97,7 +104,6 @@ func consume(ctx context.Context, conf *Config, conn *amqp091.Connection, send c
 			}
 		}()
 
-		run := createRuntime(conf.Runtime, &runtimeLock)
 		rex, err := run.Run(ctx, req.Code)
 		if err != nil {
 			msg.Reject(true)
@@ -124,17 +130,30 @@ type Runtime interface {
 	Run(ctx context.Context, code string) (*runtime.RunResult, error)
 }
 
-func createRuntime(conf RuntimeConfig, runtimeLock sync.Locker) Runtime {
+// Function may panic due to invalid app configuration
+func createRuntime(conf Config, runtimeLock sync.Locker) (Runtime, error) {
 	// Run as same user
-	if conf.RunAs == nil {
+	if conf.Runtime.RunAs == nil {
+		slog.Info("Creating same user environment")
 		env := runtime.SameUserEnv{}
 
-		return runtime.NewRuntime(runtimeLock, conf.Dir, env)
+		if conf.Mode != "debug" {
+			return nil, fmt.Errorf("Not specifying user to run the application as is not allowed outside of debug mode")
+		}
+		return runtime.NewRuntime(runtimeLock, conf.Runtime.Dir, env), nil
 	}
 
-	// App cannot continuie working if no runtime can be constructed
-	err := fmt.Errorf("Could not construct runtime from config %+V", conf)
-	panic(err)
+	if conf.Runtime.RunAsPass != nil {
+		slog.Warn("Password authentication for a user is not supported")
+	}
+
+	slog.Info("Creating environment for a different user", slog.String("runAs", *conf.Runtime.RunAs))
+	diffUserEnv, err := runtime.NewDiffUserEnv(*conf.Runtime.RunAs, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return runtime.NewRuntime(runtimeLock, conf.Runtime.Dir, diffUserEnv), nil
 }
 
 func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh chan Resp) {
@@ -145,22 +164,28 @@ func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh
 	q, err := ch.QueueDeclare(conf.MQ.RespondQ, true, false, false, false, nil)
 	checkFatal(err, "Declaring a response queue with MQ")
 
-	for r := range sendCh {
-		marshalled, err := json.Marshal(r)
-		if err != nil {
-			slog.Error("Could not marshall message", slog.String("err", err.Error()), slog.Any("val", r))
-			continue
-		}
+	for {
+		select {
+		case <-ctx.Done():
+			slog.Warn("Message production context cancelled")
+			return
+		case r := <-sendCh:
+			marshalled, err := json.Marshal(r)
+			if err != nil {
+				slog.Error("Could not marshall message", slog.String("err", err.Error()), slog.Any("val", r))
+				continue
+			}
 
-		slog.Info("Producing message to mq", slog.Int("msgLen", len(marshalled)))
+			slog.Info("Producing message to mq", slog.Int("msgLen", len(marshalled)))
 
-		err = ch.Publish("", q.Name, true, false, amqp091.Publishing{
-			CorrelationId: r.CorrelationID,
-			ContentType:   "application/json",
-			Body:          marshalled,
-		})
-		if err != nil {
-			slog.Error("Could not send a message to mq", slog.String("err", err.Error()))
+			err = ch.Publish("", q.Name, true, false, amqp091.Publishing{
+				CorrelationId: r.CorrelationID,
+				ContentType:   "application/json",
+				Body:          marshalled,
+			})
+			if err != nil {
+				slog.Error("Could not send a message to mq", slog.String("err", err.Error()))
+			}
 		}
 	}
 }
