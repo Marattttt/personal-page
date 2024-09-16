@@ -46,5 +46,6 @@ func (d DiffUserEnv) Login(ctx context.Context) (*exec.Cmd, error) {
 
 	d.userChecked = true
 
-	return exec.Command("sudo", "-u", d.user), nil
+	// Assumes running as the root user
+	return exec.Command("sudo", "-u", d.user, "sh"), nil
 }

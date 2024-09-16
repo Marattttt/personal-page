@@ -23,7 +23,7 @@ type MQConfig struct {
 	User     string `env:"USER, default=guest"`
 	Password string `env:"PASS, default=guest"`
 	RecvQ    string `env:"RECVQ, default=gorunner"`
-	RespondQ string `env:"RESPQ, default=gorunner-response"`
+	RespondQ string `env:"RESPQ, default=run-result"`
 }
 
 func (m MQConfig) URL() string {

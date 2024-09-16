@@ -62,8 +62,15 @@ func (r Runtime) Run(ctx context.Context, code string) (*RunResult, error) {
 		return nil, fmt.Errorf("logging in: %w", err)
 	}
 
-	stdin := strings.NewReader("go run " + r.root + "/main.go")
+	goPath, err := goExecutableAbs(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting go path: %w", err)
+	}
+
+	stdinStr := *goPath + " run " + r.root + "/main.go"
+	stdin := strings.NewReader(stdinStr)
 	cmd.Stdin = stdin
+	slog.Debug("Prepared stdin for shell", slog.String("in", stdinStr))
 
 	// Read all data from outputs, while the command is still running
 	stdout, stderr, err := getOutPipes(cmd)
@@ -207,6 +214,19 @@ func goModInit(ctx context.Context, dir string) error {
 	}
 
 	return nil
+}
+
+// Finds the absolute path to  go executable
+func goExecutableAbs(ctx context.Context) (*string, error) {
+	cmd := exec.CommandContext(ctx, "which", "go")
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		slog.Warn("Could not get path of the go executable")
+		return nil, fmt.Errorf("running which go: %w", err)
+	}
+
+	s := strings.TrimSpace(string(out))
+	return &s, nil
 }
 
 func writeMain(root string, code string) error {
