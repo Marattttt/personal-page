@@ -22,8 +22,8 @@ type MQConfig struct {
 	Addr     string `env:"ADDR, default=localhost:5672"`
 	User     string `env:"USER, default=guest"`
 	Password string `env:"PASS, default=guest"`
-	RecvQ    string `env:"RECVQ, default=javascript-receive"`
-	RespondQ string `env:"RESPQ, default=javascript-result"`
+	RecvQ    string `env:"RECVQ, default=jsrunner"`
+	RespondQ string `env:"RESPQ, default=jsrunner-response"`
 }
 
 func (m MQConfig) URL() string {
