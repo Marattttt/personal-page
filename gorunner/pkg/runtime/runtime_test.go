@@ -8,6 +8,7 @@ import (
 
 	"time"
 
+	"github.com/Marattttt/personal-page-libs/userenv"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,9 +21,9 @@ func main() {
 }`
 
 	var (
-		env = SameUserEnv{}
+		env = userenv.SameUserEnv{}
 		lck = &sync.Mutex{}
-		dir = "/tmp/gorunner/test/1215543764534"
+		dir = "/tmp/gorunner/test/"
 
 		r = NewRuntime(lck, dir, env)
 
@@ -45,9 +46,9 @@ func TestCouldNotCompile(t *testing.T) {
 	const code = `invalid code`
 
 	var (
-		env = SameUserEnv{}
+		env = userenv.SameUserEnv{}
 		lck = &sync.Mutex{}
-		dir = "/tmp/gorunner/test/1215543764534"
+		dir = "/tmp/gorunner/test/"
 
 		r = NewRuntime(lck, dir, env)
 	)

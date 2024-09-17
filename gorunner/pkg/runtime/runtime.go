@@ -201,6 +201,8 @@ func getOutPipes(cmd *exec.Cmd) (io.ReadCloser, io.ReadCloser, error) {
 // Create go mod file in a directory
 func goModInit(ctx context.Context, dir string) error {
 	cmd := exec.CommandContext(ctx, "go", "mod", "init", "gorunner")
+	cmd.Dir = dir
+
 	slog.Info("Creating go mod", slog.String("dir", dir))
 
 	if out, err := cmd.CombinedOutput(); err != nil {
