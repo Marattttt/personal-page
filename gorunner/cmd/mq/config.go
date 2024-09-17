@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/Marattttt/portfolio/gorunner/internal/config"
+	"github.com/Marattttt/personal-page/gorunner/internal/config"
 	"github.com/sethvargo/go-envconfig"
 )
 
@@ -22,7 +22,7 @@ type MQConfig struct {
 	Addr     string `env:"ADDR, default=localhost:5672"`
 	User     string `env:"USER, default=guest"`
 	Password string `env:"PASS, default=guest"`
-	RecvQ    string `env:"RECVQ, default=gorunner"`
+	RecvQ    string `env:"RECVQ, default=go-receive"`
 	RespondQ string `env:"RESPQ, default=run-result"`
 }
 

@@ -9,7 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Marattttt/portfolio/gorunner/pkg/runtime"
+	"github.com/Marattttt/personal-page-libs/userenv"
+	"github.com/Marattttt/personal-page/gorunner/pkg/runtime"
 	"github.com/joho/godotenv"
 	"github.com/rabbitmq/amqp091-go"
 )
@@ -135,7 +136,7 @@ func createRuntime(conf Config, runtimeLock sync.Locker) (Runtime, error) {
 	// Run as same user
 	if conf.Runtime.RunAs == nil {
 		slog.Info("Creating same user environment")
-		env := runtime.SameUserEnv{}
+		env := userenv.SameUserEnv{}
 
 		if conf.Mode != "debug" {
 			return nil, fmt.Errorf("Not specifying user to run the application as is not allowed outside of debug mode")
@@ -148,7 +149,7 @@ func createRuntime(conf Config, runtimeLock sync.Locker) (Runtime, error) {
 	}
 
 	slog.Info("Creating environment for a different user", slog.String("runAs", *conf.Runtime.RunAs))
-	diffUserEnv, err := runtime.NewDiffUserEnv(*conf.Runtime.RunAs, nil)
+	diffUserEnv, err := userenv.NewDiffUserEnv(*conf.Runtime.RunAs, nil)
 	if err != nil {
 		return nil, err
 	}

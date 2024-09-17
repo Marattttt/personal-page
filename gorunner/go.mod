@@ -1,6 +1,6 @@
-module github.com/Marattttt/portfolio/gorunner
+module github.com/Marattttt/personal-page/gorunner
 
-go 1.23.0
+go 1.23.1
 
 require (
 	github.com/sethvargo/go-envconfig v1.1.0
@@ -11,6 +11,7 @@ require (
 require github.com/rabbitmq/amqp091-go v1.10.0 // indirect
 
 require (
+	github.com/Marattttt/personal-page-libs/userenv v0.0.0-20240916020309-7451065f8d8a
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
