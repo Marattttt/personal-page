@@ -26,13 +26,16 @@ func main() {
 	conf, err := createConfig(ctx)
 	checkFatal(err, "Creating app config")
 
+	slog.Info("Created config", slog.Any("conf", conf))
+
 	mqConn, err := connectMQ(conf)
 	checkFatal(err, "Connecting to mq")
 
 	gorunner := runners.NewGoRunner(conf.Runners, mqConn)
+	jsrunner := runners.NewJsRunner(conf.Runners, mqConn)
 
 	e := echo.New()
-	handlers.SetupRoutes(e, gorunner)
+	handlers.SetupRoutes(e, gorunner, jsrunner)
 
 	e.Server.Addr = ":8080"
 

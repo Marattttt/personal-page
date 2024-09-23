@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -10,8 +11,8 @@ templ RunResult(stdout string, stderr string, exitcode int, timeTook time.Durati
 	//
 	<div>
 		<p>
-			hehe { strconv.Itoa(strings.Count(stderr, "\n")) }
-		</p>
+	{ fmt.Println(strings.Count(stderr), "\n")) }
+	</p>
 		<p>Stdout: { stdout } </p>
 		if len(stderr) > 0 {
 			<p class="text-red-100 whitespace-pre">

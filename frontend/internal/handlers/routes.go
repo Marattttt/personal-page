@@ -12,9 +12,13 @@ type GoRunner interface {
 	Run(context.Context, string) (*runners.RunResult, error)
 }
 
-func SetupRoutes(e *echo.Echo, gorunner GoRunner) {
+type JsRunner interface {
+	Run(context.Context, string) (*runners.RunResult, error)
+}
+
+func SetupRoutes(e *echo.Echo, gorunner GoRunner, jsrunner JsRunner) {
 	e.Add("GET", "/", HandleIndex())
-	e.Add("POST", "/run", HandleRun(gorunner))
+	e.Add("POST", "/run", HandleRun(gorunner, jsrunner))
 
 	e.StaticFS("/static", static.Get())
 }

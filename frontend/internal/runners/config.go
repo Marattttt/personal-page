@@ -7,4 +7,7 @@ type Config struct {
 
 	GoSendQ string `env:"GO_SENDQ, default=gorunner"`
 	GoRespQ string `env:"GO_RESPQ, default=gorunner-response"`
+
+	JsSendQ string `env:"JS_SENDQ, default=jsrunner"`
+	JsRespQ string `env:"JS_RESPQ, default=jsrunner-response"`
 }

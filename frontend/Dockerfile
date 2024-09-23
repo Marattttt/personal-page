@@ -27,8 +27,5 @@ WORKDIR /app
 
 COPY --from=build /app/server /app/server
 
-RUN ls
-RUN pwd
-
 ENTRYPOINT ["./server"]
 
