@@ -11,7 +11,8 @@ import (
 type Config struct {
 	MQ      MQConfig      `env:", prefix=MQ_"`
 	Runtime RuntimeConfig `env:", prefix=RUNTIME_"`
-	Mode    string        `env:"MODE, default=debug"`
+
+	Mode string `env:"MODE, default=debug"`
 }
 
 func (conf Config) Apply() error {
@@ -19,11 +20,12 @@ func (conf Config) Apply() error {
 }
 
 type MQConfig struct {
-	Addr     string `env:"ADDR, default=localhost:5672"`
-	User     string `env:"USER, default=guest"`
-	Password string `env:"PASS, default=guest"`
-	RecvQ    string `env:"RECVQ, default=jsrunner"`
-	RespondQ string `env:"RESPQ, default=jsrunner-response"`
+	Addr          string `env:"ADDR, default=localhost:5672"`
+	User          string `env:"USER, default=guest"`
+	Password      string `env:"PASS, default=guest"`
+	RecvQ         string `env:"RECVQ, default=jsrunner"`
+	RespondQ      string `env:"RESPQ, default=jsrunner-response"`
+	RetriesOnFail int    `env:"RETRIES, default=5"`
 }
 
 func (m MQConfig) URL() string {

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/Marattttt/personal-page-libs/userenv"
@@ -47,16 +48,17 @@ func main() {
 	checkFatal(err, "Dialling "+conf.MQ.URL())
 
 	sendmsg := make(chan Resp)
+	var retries atomic.Int32
 
 	go func() {
-		consume(appctx, conf, conn, sendmsg)
+		consume(appctx, conf, conn, sendmsg, &retries)
 		// Closing the sendmsg channel signals to finish reading from it and stop the producer
 		// goroutine, which leads to all remaining messages being sent to mq before shutdown
 		close(sendmsg)
 	}()
 
 	go func() {
-		produce(appctx, conf, conn, sendmsg)
+		produce(appctx, conf, conn, sendmsg, &retries)
 		slog.Info("Stopped message production")
 		appcancel()
 	}()
@@ -72,7 +74,7 @@ func checkFatal(err error, msg string) {
 	}
 }
 
-func consume(ctx context.Context, conf *Config, conn *amqp091.Connection, send chan Resp) {
+func consume(ctx context.Context, conf *Config, conn *amqp091.Connection, send chan Resp, retryCounter *atomic.Int32) {
 	ch, err := conn.Channel()
 	// Cannot continue operationg on an error of such level
 	checkFatal(err, "Obtaining a channel from MQ")
@@ -88,14 +90,21 @@ func consume(ctx context.Context, conf *Config, conn *amqp091.Connection, send c
 	checkFatal(err, "Cretaing runtime")
 
 	for msg := range d {
+		if retryCounter.Load() > int32(conf.MQ.RetriesOnFail) {
+			slog.Error("Too manny retries, closing consume routine")
+			return
+		}
+
 		var req Req
 		if err := json.Unmarshal(msg.Body, &req); err != nil {
 			msg.Reject(false)
+			retryCounter.Add(1)
 			slog.Warn("Could not decode broker's message body", slog.String("err", err.Error()))
 			continue
 		}
 
 		defer func() {
+			retryCounter.Add(1)
 			if cause := recover(); cause != nil {
 				if err, ok := cause.(error); ok {
 					slog.Error("Recovered from panic in main/consume (error)", slog.String("err", err.Error()))
@@ -108,6 +117,7 @@ func consume(ctx context.Context, conf *Config, conn *amqp091.Connection, send c
 		rex, err := run.Run(ctx, req.Code)
 		if err != nil {
 			msg.Reject(true)
+			retryCounter.Add(1)
 			slog.Error("Could not execute code from mq", slog.String("err", err.Error()))
 			continue
 		}
@@ -157,7 +167,7 @@ func createRuntime(conf Config, runtimeLock sync.Locker) (Runtime, error) {
 	return runtime.NewRuntime(runtimeLock, conf.Runtime.Dir, diffUserEnv), nil
 }
 
-func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh chan Resp) {
+func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh chan Resp, retryCounter *atomic.Int32) {
 	ch, err := conn.Channel()
 	// Cannot continue operationg on an error of such level
 	checkFatal(err, "Obtaining a channel from MQ")
@@ -166,6 +176,11 @@ func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh
 	checkFatal(err, "Declaring a response queue with MQ")
 
 	for {
+		if retryCounter.Load() > int32(conf.MQ.RetriesOnFail) {
+			slog.Error("Too manny retries, closing produce routine")
+			return
+		}
+
 		select {
 		case <-ctx.Done():
 			slog.Warn("Message production context cancelled")
@@ -174,6 +189,7 @@ func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh
 			marshalled, err := json.Marshal(r)
 			if err != nil {
 				slog.Error("Could not marshall message", slog.String("err", err.Error()), slog.Any("val", r))
+				retryCounter.Add(1)
 				continue
 			}
 
@@ -185,6 +201,7 @@ func produce(ctx context.Context, conf *Config, conn *amqp091.Connection, sendCh
 				Body:          marshalled,
 			})
 			if err != nil {
+				retryCounter.Add(1)
 				slog.Error("Could not send a message to mq", slog.String("err", err.Error()))
 			}
 		}
