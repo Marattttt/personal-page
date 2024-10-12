@@ -24,7 +24,6 @@ SELECT
 	role,
 	login,
 	pass_hash,
-	pass_salt
 FROM 
 	users
 WHERE 
@@ -33,7 +32,7 @@ WHERE
 
 	start := time.Now()
 
-	u.logger.Info("Executing select by id query", slog.Int("id", id), slog.Time("start", start))
+	u.logger.Info("Executing select by id query", slog.Int("id", id))
 
 	rows, err := u.db.NamedQueryContext(ctx, q, id)
 	if err != nil {
@@ -60,19 +59,59 @@ WHERE
 	return user, nil
 }
 
+func (u UserRepo) GetLogin(ctx context.Context, login string) (*models.User, error) {
+	const q = `
+SELECT 
+	id,
+	role,
+	login,
+	pass_hash,
+FROM 
+	users
+WHERE 
+	id = $1
+`
+
+	start := time.Now()
+
+	u.logger.Info("Executing select by login query", slog.String("login", login))
+
+	rows, err := u.db.NamedQueryContext(ctx, q, login)
+	if err != nil {
+		return nil, fmt.Errorf("querying: %w", err)
+	}
+
+	var user *models.User
+
+	for rows.Next() {
+		if user != nil {
+			return nil, fmt.Errorf("too many rows")
+		}
+
+		if err := rows.StructScan(&user); err != nil {
+			return nil, fmt.Errorf("scanning: %w", err)
+		}
+	}
+
+	u.logger.Info(
+		"Finished user select by login",
+		slog.Duration("timeTook", time.Now().Sub(start)),
+	)
+
+	return user, nil
+}
+
 func (u UserRepo) Create(ctx context.Context, user models.User) (*models.User, error) {
 	const q = `
 INSERT INTO users (
 	login,
 	role,
 	pass_hash,
-	pass_salt)
 VALUES (
 	:login,
 	:role,
 	:pass_hash,
-	:pass_salt)
-RETURNING id, login, role, pass_hash, pass_salt`
+RETURNING id, login, role, pass_hash`
 
 	start := time.Now()
 	slog.Info("Starting create user transaction", slog.Any("user", user))

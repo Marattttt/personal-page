@@ -5,5 +5,4 @@ type User struct {
 	Role     Role   `json:"role" db:"role"`
 	Login    string `json:"login" db:"login"`
 	PassHash string `json:"-" db:"pass_hash"`
-	Salt     string `json:"-" db:"pass_salt"`
 }

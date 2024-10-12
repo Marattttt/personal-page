@@ -12,6 +12,7 @@ import (
 	"github.com/Marattttt/personal-page/authorizer/pkg/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var ErrNotAuthorized = errors.New("Not authorized")
@@ -150,4 +151,13 @@ func GeneratePair(user models.User, conf *config.AuthConfig) (*string, *string, 
 	}
 
 	return access, refresh, nil
+}
+
+func HashPassword(pass []byte) (*[]byte, error) {
+	hashed, err := bcrypt.GenerateFromPassword(pass, bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("generating: %w", err)
+	}
+
+	return &hashed, nil
 }
