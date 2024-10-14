@@ -6,11 +6,14 @@ import (
 
 	"github.com/Marattttt/personal-page/authorizer/pkg/config"
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
 	ctx := context.TODO()
+
+	checkFail(godotenv.Load(), "Loading .env file")
 
 	conf, err := config.ConfigFromEnv(ctx)
 	checkFail(err, "Parsing env vars to create config")

@@ -20,8 +20,8 @@ type AuthConfig struct {
 	Issuer           string        `env:"ISSUER, default=maratbakasov.com"`
 	AccessSecret     string        `env:"ACCESS_SECRET"`
 	RefreshSecret    string        `env:"REFRESH_SECRET"`
-	AccessValidTime  time.Duration `env:"ACCESS_VALID_FOR, default=6h"`
-	RefreshValidTime time.Duration `env:"REFRESH_VALID_FOR, default=3d"`
+	AccessValidTime  time.Duration `env:"ACCESS_VALID_FOR, default=1h"`
+	RefreshValidTime time.Duration `env:"REFRESH_VALID_FOR, default=72h"`
 }
 
 func ConfigFromEnv(ctx context.Context) (*Config, error) {

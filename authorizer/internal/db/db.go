@@ -10,6 +10,7 @@ import (
 
 	"github.com/Marattttt/personal-page/authorizer/pkg/models"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 type UserRepo struct {
