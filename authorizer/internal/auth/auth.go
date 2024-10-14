@@ -42,23 +42,17 @@ type UserRepo interface {
 	Get(ctx context.Context, id int) (*models.User, error)
 }
 
-type RefreshValidator interface {
-	ValidateRefresh(jwt.Token) error
-}
-
 type Auth struct {
-	repo      UserRepo
-	conf      config.AuthConfig
-	logger    slog.Logger
-	refresher RefreshValidator
+	repo   UserRepo
+	conf   config.AuthConfig
+	logger *slog.Logger
 }
 
-func New(repo UserRepo, conf config.AuthConfig, refresher RefreshValidator, logger slog.Logger) Auth {
+func New(repo UserRepo, conf config.AuthConfig, logger *slog.Logger) Auth {
 	return Auth{
-		repo:      repo,
-		conf:      conf,
-		logger:    logger,
-		refresher: refresher,
+		repo:   repo,
+		conf:   conf,
+		logger: logger,
 	}
 }
 
@@ -70,10 +64,6 @@ func (a Auth) VerifyRefresh(tokStr string) (*jwt.Token, error) {
 	tok, err := verifyToken(tokStr, a.conf.RefreshSecret)
 
 	if err != nil {
-		return nil, err
-	}
-
-	if err := a.refresher.ValidateRefresh(*tok); err != nil {
 		return nil, err
 	}
 

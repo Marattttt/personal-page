@@ -17,6 +17,13 @@ type UserRepo struct {
 	logger *slog.Logger
 }
 
+func NewUserRepo(conn *sqlx.DB, logger *slog.Logger) UserRepo {
+	return UserRepo{
+		db:     conn,
+		logger: logger,
+	}
+}
+
 func (u UserRepo) Get(ctx context.Context, id int) (*models.User, error) {
 	const q = `
 SELECT 
