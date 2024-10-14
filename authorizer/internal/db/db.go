@@ -9,6 +9,9 @@ import (
 	"time"
 
 	"github.com/Marattttt/personal-page/authorizer/pkg/models"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 )
@@ -161,4 +164,23 @@ func rollBack(tx *sqlx.Tx, errLogger *slog.Logger) {
 	if err != nil && !errors.Is(err, sql.ErrTxDone) {
 		errLogger.Error("Could not rollback transaction", slog.String("err", err.Error()))
 	}
+}
+
+func Migrate(conn *sqlx.DB, source string) error {
+	driver, err := postgres.WithInstance(conn.DB, &postgres.Config{})
+	if err != nil {
+		return fmt.Errorf("migrations driver: %w", err)
+	}
+
+	m, err := migrate.NewWithDatabaseInstance(source, "authenticator", driver)
+	if err != nil {
+		return fmt.Errorf("creating migration instance: %w", err)
+	}
+
+	err = m.Up()
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		return fmt.Errorf("appying migrations: %w", err)
+	}
+
+	return nil
 }

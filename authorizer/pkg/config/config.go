@@ -13,7 +13,8 @@ type Config struct {
 }
 
 type DBConfig struct {
-	PostgresURL string `env:"POSTGRES_URL"`
+	PostgresURL      string `env:"POSTGRES_URL"`
+	MigrationsSource string `env:"MIGRATIONS_URL, default=file://internal/db/migrations"`
 }
 
 type AuthConfig struct {

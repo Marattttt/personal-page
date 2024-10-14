@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/Marattttt/personal-page/authorizer/internal/db"
 	"github.com/Marattttt/personal-page/authorizer/pkg/config"
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -18,8 +19,10 @@ func main() {
 	conf, err := config.ConfigFromEnv(ctx)
 	checkFail(err, "Parsing env vars to create config")
 
-	dbConnn, err := sqlx.Connect("postgres", conf.DBConfig.PostgresURL)
+	dbConnn, err := sqlx.Connect("postgres", conf.PostgresURL)
 	checkFail(err, "Connecting to db")
+
+	checkFail(db.Migrate(dbConnn, conf.MigrationsSource), "Migrating db")
 
 	e := echo.New()
 	AddRoutes(e, conf, dbConnn)
