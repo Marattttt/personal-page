@@ -1,3 +1,4 @@
 CREATE TABLE IF NOT EXISTS roles (
-	role_id SERIAL PRIMARY KEY
+	role_id SERIAL PRIMARY KEY,
+	name TEXT
 );
