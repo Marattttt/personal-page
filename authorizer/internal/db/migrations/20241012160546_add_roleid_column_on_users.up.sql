@@ -1,1 +1,1 @@
-ALTER TABLE users ADD role_id FOREIGN KEY(roles.role_id);
+ALTER TABLE users ADD role_id INT REFERENCES roles(role_id);
