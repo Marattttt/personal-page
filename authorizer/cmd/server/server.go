@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/Marattttt/personal-page/authorizer/internal/db"
@@ -25,6 +26,7 @@ func main() {
 	checkFail(db.Migrate(dbConnn, conf.MigrationsSource), "Migrating db")
 
 	e := echo.New()
+	e.Server.Addr = fmt.Sprintf(":%d", conf.Port)
 	AddRoutes(e, conf, dbConnn)
 
 	checkFail(e.Server.ListenAndServe(), "Unexpected server shutdown")
