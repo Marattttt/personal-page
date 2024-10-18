@@ -45,7 +45,7 @@ WHERE
 
 	u.logger.Info("Executing select by id query", slog.Int("id", id))
 
-	rows, err := u.db.NamedQueryContext(ctx, q, id)
+	rows, err := u.db.QueryxContext(ctx, q, id)
 	if err != nil {
 		return nil, fmt.Errorf("querying: %w", err)
 	}

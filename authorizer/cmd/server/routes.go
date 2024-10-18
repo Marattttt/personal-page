@@ -13,7 +13,7 @@ import (
 )
 
 func AddRoutes(e *echo.Echo, conf *config.Config, dbconn *sqlx.DB) {
-	e.GET("/login", handleLogin(dbconn, conf))
+	e.GET("/login/:id", handleLogin(dbconn, conf))
 }
 
 var reqId int
