@@ -4,7 +4,7 @@ import createRouter from './routes';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const jsrundir = '.'
+const jsrundir = './runtimedir'
 
 const router = createRouter({ jsRunDir: jsrundir })
 app.use(router)
