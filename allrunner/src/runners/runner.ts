@@ -2,11 +2,11 @@ interface JsRunner {
 	runjs(code: string): Promise<RunResult>
 }
 
-interface RunResult {
-	Stdout: Uint8Array
-	Stderr: Uint8Array
-	ExecTimeMs: number
-	ExitCode: number
+class RunResult {
+	stdout: Uint8Array = new Uint8Array()
+	stderr: Uint8Array = new Uint8Array()
+	execTimeMs: number = -1
+	exitCode: number = -1
 }
 
 enum lang {
