@@ -1,7 +1,12 @@
-import { exec, spawn } from "child_process"
+import { exec } from "child_process"
 import { promises } from "fs"
-import path, { join } from "path"
+import { join } from "path"
 import { JsRunner, RunResult } from "../runner"
+import AsyncLock from "async-lock"
+
+const lock = new AsyncLock()
+const runjsKey = 'runjs'
+const prepareDirKey = 'prepareDir'
 
 export default class Js implements JsRunner {
 	private rundir: string
@@ -10,7 +15,25 @@ export default class Js implements JsRunner {
 		this.rundir = dir
 	}
 
+	/**
+	* Runs an index.js file in a directory and returns the output
+	* Can throw multiple types of errors
+	* Operation is locking across any class instances due to a file-level lock
+	*/
 	async runjs(code: string): Promise<RunResult> {
+		let res = new RunResult()
+
+		res = await lock.acquire(
+			runjsKey,
+			async () => { return await this.runjsNoLock(code) }
+		)
+		return res
+	}
+
+	/**
+	* The core of the runjs function that is not bound to a lock
+	*/
+	private async runjsNoLock(code: string): Promise<RunResult> {
 		await prepareDir(this.rundir)
 
 		const path = join(this.rundir, 'index.js')
@@ -42,10 +65,13 @@ export default class Js implements JsRunner {
 	}
 }
 
-// It is unsafe to execute this function concurrently with the same dir,
-// due to possible overrwrites of changes
+/**
+ * Creates or clears a directory for executing javascipt 
+ * Locks to a file-level lock so concurrent calls are safe
+ * Unsafe to use outside of a lock
+ */
 async function prepareDir(dir: string) {
-	// Check if exists and if it does, remove
+	// Check if exists and if it does, remove the directory
 	try {
 		await promises.access(dir)
 		await promises.rm(dir, { recursive: true, force: true })
