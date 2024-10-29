@@ -1,8 +1,9 @@
 import { spawn } from "child_process"
 import { promises } from "fs"
 import { join } from "path"
+import { JsRunner, RunResult } from "../runner"
 
-class Js implements JsRunner {
+export default class Js implements JsRunner {
 	private rundir: string
 
 	constructor(dir: string) {
