@@ -1,7 +1,7 @@
 import Js from "./jslang/jslang"
 
 export interface JsRunner {
-	runjs(code: string): Promise<RunResult>
+	runjs(code: string, timeout: number): Promise<RunResult>
 }
 
 export class RunResult {
@@ -29,12 +29,12 @@ export class Runner {
 		this.js = js
 	}
 
-	async run(lang: lang, code: string): Promise<RunResult> {
+	async run(lang: lang, code: string, timeout: number): Promise<RunResult> {
 		if (lang == 'js') {
 			if (!this.js) {
 				throw new LangNotSupportedError(lang)
 			}
-			return await this.js!.runjs(code)
+			return await this.js!.runjs(code, timeout)
 		}
 
 		throw new LangNotSupportedError(lang)

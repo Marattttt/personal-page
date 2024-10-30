@@ -3,7 +3,10 @@ import { lang, RunnerBuilder } from "./runners/runner";
 
 export interface routerOpts {
 	jsRunDir?: string
+	jsTimeout?: number
 }
+
+const defJsTimeout = 30_000
 
 export default function createRouter(opts: routerOpts): Router {
 	const builder = new RunnerBuilder()
@@ -29,7 +32,12 @@ export default function createRouter(opts: routerOpts): Router {
 		code = code!.toString()
 
 		try {
-			const runres = await runner.run(lang.JS, code)
+			const runres = await runner.run(
+				lang.JS,
+				code,
+				opts.jsTimeout || defJsTimeout
+			)
+
 			res.status(200).json(runres)
 		}
 		catch (err) {

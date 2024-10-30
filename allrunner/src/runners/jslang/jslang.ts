@@ -19,12 +19,10 @@ export default class Js implements JsRunner {
 	* Can throw multiple types of errors
 	* Operation is locking across any class instances due to a file-level lock
 	*/
-	async runjs(code: string): Promise<RunResult> {
-		let res = new RunResult()
-
-		res = await lock.acquire(
+	async runjs(code: string, timeout: number): Promise<RunResult> {
+		const res = await lock.acquire(
 			runjsKey,
-			async () => { return await this.runjsNoLock(code) }
+			async () => { return await this.runjsNoLock(code, timeout) }
 		)
 		return res
 	}
@@ -32,7 +30,7 @@ export default class Js implements JsRunner {
 	/**
 	* The core of the runjs function that is not bound to a lock
 	*/
-	private async runjsNoLock(code: string): Promise<RunResult> {
+	private async runjsNoLock(code: string, timeout: number): Promise<RunResult> {
 		await prepareDir(this.rundir)
 
 		const path = join(this.rundir, 'index.js')
@@ -47,24 +45,29 @@ export default class Js implements JsRunner {
 			// not the system
 			const exceptionHappened = 1
 
-			const proc = exec('node index.js', { cwd: this.rundir }, (error, stdout, stderr) => {
-				if (error?.code != exceptionHappened) {
-					console.error({
-						msg: 'error running user submitted code',
-						err: error,
-						stdout: stdout,
-						stderr: stderr
-					})
-					reject(new Error('Could not run code with nodejs'))
-				}
+			const proc = exec('node index.js',
+				{
+					cwd: this.rundir,
+					timeout: timeout
+				},
+				(error, stdout, stderr) => {
+					if (error?.code != exceptionHappened) {
+						console.error({
+							msg: 'error running user submitted code',
+							err: error,
+							stdout: stdout,
+							stderr: stderr
+						})
+						reject(new Error('Could not run code with nodejs'))
+					}
 
-				res.stdout = new TextEncoder().encode(stdout)
-				res.stderr = new TextEncoder().encode(stderr)
-				res.exitCode = proc.exitCode!
-				res.execTimeMs = new Date().getTime() - start.getTime()
+					res.stdout = new TextEncoder().encode(stdout)
+					res.stderr = new TextEncoder().encode(stderr)
+					res.exitCode = proc.exitCode!
+					res.execTimeMs = new Date().getTime() - start.getTime()
 
-				resolve(res)
-			})
+					resolve(res)
+				})
 		})
 	}
 }
