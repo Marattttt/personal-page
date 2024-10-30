@@ -6,7 +6,6 @@ import AsyncLock from "async-lock"
 
 const lock = new AsyncLock()
 const runjsKey = 'runjs'
-const prepareDirKey = 'prepareDir'
 
 export default class Js implements JsRunner {
 	private rundir: string
@@ -43,8 +42,13 @@ export default class Js implements JsRunner {
 			const res = new RunResult()
 			const start = new Date()
 
+			// Node returns with this exit code on an unhandled exception
+			// No need to worry about it since this is an error of the submitted code,
+			// not the system
+			const exceptionHappened = 1
+
 			const proc = exec('node index.js', { cwd: this.rundir }, (error, stdout, stderr) => {
-				if (error) {
+				if (error?.code != exceptionHappened) {
 					console.error({
 						msg: 'error running user submitted code',
 						err: error,
