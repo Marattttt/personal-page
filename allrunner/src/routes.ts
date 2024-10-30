@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { lang, RunnerBuilder } from "./runners/runner";
+import { Request, Response, Router } from "express";
+import { lang, Runner, RunnerBuilder } from "./runners/runner";
 
 export interface routerOpts {
 	jsRunDir?: string
@@ -22,35 +22,39 @@ export default function createRouter(opts: routerOpts): Router {
 		res.send('<h1> Heeeey </h1>')
 	})
 
-	router.get('/js', async (req, res) => {
-		let { code } = req.query
-		if (!code) {
-			res.status(400).json(msgResp('code query param not provided'))
-			return
-		}
-
-		code = code!.toString()
-
-		try {
-			const runres = await runner.run(
-				lang.JS,
-				code,
-				opts.jsTimeout || defJsTimeout
-			)
-
-			res.status(200).json(runres)
-		}
-		catch (err) {
-			console.error({ msg: 'exception during code run', err: err })
-			res.status(500).json(msgResp('something went wrong'))
-		}
+	router.post('/js', async (req, res) => {
+		handleRunJs(runner, opts, req, res)
 	})
 
 	return router
 }
 
+async function handleRunJs(runner: Runner, opts: routerOpts, req: Request, res: Response) {
+	let { code } = req.body
+	if (!code) {
+		res.status(400).json(msgResp('code json body param not provided'))
+		return
+	}
+
+	code = code!.toString()
+
+	try {
+		const runres = await runner.run(
+			lang.JS,
+			code,
+			opts.jsTimeout || defJsTimeout
+		)
+
+		res.status(200).json(runres)
+	}
+	catch (err) {
+		console.error({ msg: 'exception during code run', err: err })
+		res.status(500).json(msgResp('something went wrong'))
+	}
+}
+
 function msgResp(msg: string, details?: object): object {
-	let resp = { msg: msg } as any
+	const resp = { msg: msg } as any
 
 	if (details) {
 		resp.details = details
@@ -58,3 +62,4 @@ function msgResp(msg: string, details?: object): object {
 
 	return resp
 }
+

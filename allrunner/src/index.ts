@@ -1,8 +1,10 @@
-import express from 'express';
+import express, { json } from 'express';
 import createRouter from './routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+app.use(json())
 
 const jsrundir = './runtimedir'
 

@@ -1,8 +1,11 @@
-import { exec } from "child_process"
+import { exec, ExecException } from "child_process"
 import { promises } from "fs"
 import { join } from "path"
 import { JsRunner, RunResult } from "../runner"
 import AsyncLock from "async-lock"
+import { promisify } from "util"
+
+const execPromise = promisify(exec)
 
 const lock = new AsyncLock()
 const runjsKey = 'runjs'
@@ -36,41 +39,43 @@ export default class Js implements JsRunner {
 		const path = join(this.rundir, 'index.js')
 		await promises.writeFile(path, code)
 
-		return new Promise((resolve, reject) => {
-			const res = new RunResult()
-			const start = new Date()
+		const res = new RunResult()
+		const start = new Date()
 
-			// Node returns with this exit code on an unhandled exception
+		const opts = { cwd: this.rundir, timeout: timeout }
+
+		try {
+			const { stdout, stderr } = await execPromise('node index.js', opts)
+
+			res.stdout = new TextEncoder().encode(stdout)
+			res.stderr = new TextEncoder().encode(stderr)
+		}
+		catch (error: any) {
+			// Node exits with exit code 1 only on an unhandled exception
 			// No need to worry about it since this is an error of the submitted code,
 			// not the system
-			const exceptionHappened = 1
-
-			const proc = exec('node index.js',
-				{
-					cwd: this.rundir,
-					timeout: timeout
-				},
-				(error, stdout, stderr) => {
-					if (error?.code != exceptionHappened) {
-						console.error({
-							msg: 'error running user submitted code',
-							err: error,
-							stdout: stdout,
-							stderr: stderr
-						})
-						reject(new Error('Could not run code with nodejs'))
-					}
-
-					res.stdout = new TextEncoder().encode(stdout)
-					res.stderr = new TextEncoder().encode(stderr)
-					res.exitCode = proc.exitCode!
-					res.execTimeMs = new Date().getTime() - start.getTime()
-
-					resolve(res)
+			if (error.code > 1) {
+				console.error({
+					msg: 'error running user submitted code',
+					err: error,
+					stdout: error.stdout,
+					stderr: error.stderr
 				})
-		})
+				throw new Error('Could not run code with nodejs')
+			}
+
+			error.stderr += error.killed ? '\n\nExecution stopped due to timeout' : ''
+
+			res.stdout = new TextEncoder().encode(error.stdout)
+			res.stderr = new TextEncoder().encode(error.stderr)
+			res.exitCode = error.code ? error.code : 0
+		}
+
+		res.execTimeMs = new Date().getTime() - start.getTime()
+		return res
 	}
 }
+
 
 /**
  * Creates or clears a directory for executing javascipt 
