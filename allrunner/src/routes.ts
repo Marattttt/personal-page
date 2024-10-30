@@ -40,6 +40,7 @@ async function handleRunJs(runner: Runner, opts: routerOpts, req: Request, res: 
 
 	try {
 		const runres = await runner.run(
+			req.log,
 			lang.JS,
 			code,
 			opts.jsTimeout || defJsTimeout
@@ -48,7 +49,7 @@ async function handleRunJs(runner: Runner, opts: routerOpts, req: Request, res: 
 		res.status(200).json(runres)
 	}
 	catch (err) {
-		console.error({ msg: 'exception during code run', err: err })
+		req.log.error({ msg: 'exception during code run', err: err })
 		res.status(500).json(msgResp('something went wrong'))
 	}
 }

@@ -1,7 +1,8 @@
+import { Logger } from "pino"
 import Js from "./jslang/jslang"
 
 export interface JsRunner {
-	runjs(code: string, timeout: number): Promise<RunResult>
+	runjs(logger: Logger, code: string, timeout: number): Promise<RunResult>
 }
 
 export class RunResult {
@@ -29,12 +30,12 @@ export class Runner {
 		this.js = js
 	}
 
-	async run(lang: lang, code: string, timeout: number): Promise<RunResult> {
+	async run(logger: Logger, lang: lang, code: string, timeout: number): Promise<RunResult> {
 		if (lang == 'js') {
 			if (!this.js) {
 				throw new LangNotSupportedError(lang)
 			}
-			return await this.js!.runjs(code, timeout)
+			return await this.js!.runjs(logger, code, timeout)
 		}
 
 		throw new LangNotSupportedError(lang)
