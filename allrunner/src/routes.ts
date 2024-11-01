@@ -1,17 +1,11 @@
 import { Request, Response, Router } from "express";
 import { lang, Runner, RunnerBuilder } from "./runners/runner";
+import AppConfig, { JsConf } from "./config";
 
-export interface routerOpts {
-	jsRunDir?: string
-	jsTimeout?: number
-}
-
-const defJsTimeout = 30_000
-
-export default function createRouter(opts: routerOpts): Router {
+export default function createRouter(conf: AppConfig): Router {
 	const builder = new RunnerBuilder()
-	if (opts.jsRunDir) {
-		builder.addJs(opts.jsRunDir)
+	if (conf.jsconf) {
+		builder.addJs(conf.jsconf.rundir)
 	}
 
 	const runner = builder.bulid()
@@ -23,13 +17,20 @@ export default function createRouter(opts: routerOpts): Router {
 	})
 
 	router.post('/js', async (req, res) => {
-		handleRunJs(runner, opts, req, res)
+		conf.jsconf
+			? handleRunJs(runner, conf.jsconf, req, res)
+			: handleNotSupported('js', req, res)
+
 	})
 
 	return router
 }
 
-async function handleRunJs(runner: Runner, opts: routerOpts, req: Request, res: Response) {
+async function handleNotSupported(lang: string, _: Request, res: Response) {
+	res.status(501).json(msgResp(`language ${lang} is not supported`))
+}
+
+async function handleRunJs(runner: Runner, conf: JsConf, req: Request, res: Response) {
 	let { code } = req.body
 	if (!code) {
 		res.status(400).json(msgResp('code json body param not provided'))
@@ -43,7 +44,7 @@ async function handleRunJs(runner: Runner, opts: routerOpts, req: Request, res: 
 			req.log,
 			lang.JS,
 			code,
-			opts.jsTimeout || defJsTimeout
+			conf.timeout
 		)
 
 		res.status(200).json(runres)

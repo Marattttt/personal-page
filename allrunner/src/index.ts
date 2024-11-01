@@ -1,18 +1,20 @@
+import 'dotenv/config'
 import express, { json } from 'express';
+
 import createRouter from './routes';
-import { pinoHttp } from 'pino-http';
+import AppConfig from './config';
+
+const conf = new AppConfig()
+const logger = conf.makeLogger()
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(json())
-app.use(pinoHttp())
+app.use(logger)
 
-const jsrundir = '../runtimedir'
-
-const router = createRouter({ jsRunDir: jsrundir })
+const router = createRouter(conf)
 app.use(router)
 
-app.listen(PORT, () => {
-	console.log(`app is liistening on port ${PORT}`)
+app.listen(conf.port, () => {
+	console.log(`app is liistening on port ${conf.port}`)
 })
