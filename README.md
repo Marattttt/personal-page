@@ -6,7 +6,11 @@ My personal website!
 
 ## What
 
-An SSR frontend made with Go, Templ, HTMX, Tailwind, where users can send code on different supported languages to execute in the backend on different microservices
+Right now, an SSR frontend with ability to run any go or javascript code
+
+## Status
+
+Being rewritten to all TypeScript (single backend with possible multiple deployments for every language)
 
 ## Why
 
@@ -16,9 +20,11 @@ To learn about Linux security, containerization and have something to show when 
 
 [x] Implement a go+templ+htmx frontend
 [x] Go runner microservice
+[x] JavaScript runner microservice
+[x] Allrunner - a generic runner in typescript
+[x] Javasctipt in allrunner 
+[ ] Go in allrunner 
 [ ] Submisssions database to see what people can do with the website
-[ ] Python runner microservice
-[ ] JavaScript runner microservice
 [ ] Stat collection and analytics
 
 ## When
