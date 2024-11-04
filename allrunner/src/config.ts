@@ -6,12 +6,18 @@ export interface JsConf {
 	timeout: number
 }
 
+export interface GoConf {
+	rundir: string
+	timeout: number
+}
+
 export default class AppConfig {
 	port: number
 	logLevel: pino.Level
 
 	langs: string[]
 	jsconf?: JsConf
+	goconf?: GoConf
 
 	constructor() {
 		this.port = parseInt(process.env.PORT ?? '') || 3000
@@ -36,6 +42,16 @@ export default class AppConfig {
 			}
 
 			console.debug({ jsconf: this.jsconf }, 'processed js configuration')
+		}
+
+		if (this.langs.includes('GO')) {
+			this.goconf = {
+				rundir: process.env.GO_RUNDIR || './go_rundir',
+				timeout:
+					parseInt(process.env.GO_TIMEOUT ?? '') ||
+					parseInt(process.env.TIMEOUT ?? '') ||
+					30_000
+			}
 		}
 
 		console.info({ conf: this }, 'finished config constructor')
