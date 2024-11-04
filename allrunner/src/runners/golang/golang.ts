@@ -1,7 +1,7 @@
 import { exec } from "child_process"
 import { promises } from "fs"
 import { join } from "path"
-import { GoRunner, RunResult } from "../runner"
+import { GoRunner, RunResult, TimeoutMsg as TimeoutMsg } from "../runner"
 import AsyncLock from "async-lock"
 import { promisify } from "util"
 import { Logger } from "pino"
@@ -69,7 +69,7 @@ export default class Go implements GoRunner {
 			}
 
 			if (error.killed) {
-				error.stderr += '\n\nExecution stopped due to timeout'
+				error.stderr += TimeoutMsg
 				logger.warn('execution timed out')
 			}
 

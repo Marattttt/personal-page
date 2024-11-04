@@ -1,7 +1,7 @@
 import { exec } from "child_process"
 import { promises } from "fs"
 import { join } from "path"
-import { JsRunner, RunResult } from "../runner"
+import { JsRunner, RunResult, TimeoutMsg as TimeoutMsg } from "../runner"
 import AsyncLock from "async-lock"
 import { promisify } from "util"
 import { Logger } from "pino"
@@ -69,7 +69,7 @@ export default class Js implements JsRunner {
 			}
 
 			if (error.killed) {
-				error.stderr += '\n\nExecution stopped due to timeout'
+				error.stderr += TimeoutMsg
 				logger.warn('execution timed out')
 			}
 
@@ -104,6 +104,8 @@ async function prepareDir(dir: string) {
 	cd '${dir}';
 	npm init -y;
 	`
+
+	console.debug(`Attempting to run script ${script}`)
 
 	const proc = exec('sh', (error, stdout, stderr) => {
 		if (error) {

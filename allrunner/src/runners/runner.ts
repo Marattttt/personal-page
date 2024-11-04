@@ -26,6 +26,8 @@ export class LangNotSupportedError extends Error {
 	}
 }
 
+export const TimeoutMsg = 'Execution timed out'
+
 export class Runner {
 	private js?: JsRunner
 	private go?: GoRunner
