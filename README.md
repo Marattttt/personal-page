@@ -23,7 +23,9 @@ To learn about Linux security, containerization and have something to show when 
 [x] JavaScript runner microservice
 [x] Allrunner - a generic runner in typescript
 [x] Javasctipt in allrunner 
-[ ] Go in allrunner 
+[x] Go in allrunner 
+[ ] Rewrite frontend in Next.js
+[ ] Authentication
 [ ] Submisssions database to see what people can do with the website
 [ ] Stat collection and analytics
 
