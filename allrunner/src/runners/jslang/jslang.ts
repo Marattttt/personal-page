@@ -1,4 +1,4 @@
-import { exec, ExecException } from "child_process"
+import { exec } from "child_process"
 import { promises } from "fs"
 import { join } from "path"
 import { JsRunner, RunResult } from "../runner"
@@ -52,8 +52,8 @@ export default class Js implements JsRunner {
 		try {
 			const { stdout, stderr } = await execPromise('node index.js', opts)
 
-			res.stdout = new TextEncoder().encode(stdout)
-			res.stderr = new TextEncoder().encode(stderr)
+			res.stdout = stdout
+			res.stderr = stderr
 		}
 		catch (error: any) {
 			// Node exits with exit code 1 only on an unhandled exception
@@ -73,8 +73,8 @@ export default class Js implements JsRunner {
 				logger.warn('execution timed out')
 			}
 
-			res.stdout = new TextEncoder().encode(error.stdout)
-			res.stderr = new TextEncoder().encode(error.stderr)
+			res.stdout = error.stdout
+			res.stderr = error.stderr
 			res.exitCode = error.code ? error.code : 0
 		}
 

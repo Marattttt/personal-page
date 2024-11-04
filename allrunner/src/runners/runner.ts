@@ -11,8 +11,8 @@ export interface JsRunner {
 }
 
 export class RunResult {
-	stdout: Uint8Array = new Uint8Array()
-	stderr: Uint8Array = new Uint8Array()
+	stdout: string = ''
+	stderr: string = ''
 	execTimeMs: number = -1
 	exitCode: number = -1
 }
